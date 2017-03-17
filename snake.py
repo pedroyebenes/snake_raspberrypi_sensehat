@@ -15,8 +15,8 @@ state = { "snake_x" : [],
           "snake_y" : [],
           "snake_body_rgb" : (255,255,0),
           "snake_head_rgb" : (255,0,0),
-          "food_x" : 2,
-          "food_y" : 7,
+          "food_x" : 4,
+          "food_y" : 3,
           "food_rgb" : (0,255,50),
           "level" : 1,
           "last_mov" : sense_hat.DIRECTION_UP}
@@ -53,10 +53,11 @@ def setscreen():
     sense.set_pixel(snake_x[i], snake_y[i], state["snake_body_rgb"])
   sense.set_pixel(snake_x[state["level"]-1], snake_y[state["level"]-1], state["snake_head_rgb"])
 
-def isInSnake(x,y):
+def isInSnake(x,y,avoid_first_element):
   global state
   isIn = False
-  for i in range(0, state["level"]): #
+  start = 1 if avoid_first_element else 0
+  for i in range(start, state["level"]): #
     if state["snake_x"][i] == x and state["snake_y"][i] == y :
       isIn = True
       break
@@ -95,7 +96,7 @@ def check_pos():
     while True:
       state["food_x"] = random.randint(0,7)
       state["food_y"] = random.randint(0,7)
-      if not isInSnake(state["food_x"], state["food_y"]):
+      if not isInSnake(state["food_x"], state["food_y"],False):
         break
 
 """Move the head of the snake with relation with its position"""
@@ -104,7 +105,7 @@ def move(x,y):
   pos = state["level"]-1
   new_x = (state["snake_x"][pos] + x) % 8
   new_y = (state["snake_y"][pos] + y) % 8
-  collision = isInSnake(new_x, new_y)
+  collision = isInSnake(new_x, new_y,True)
   add_new_position(new_x, new_y)
   return collision;
 
