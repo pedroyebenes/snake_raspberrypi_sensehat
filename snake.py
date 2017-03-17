@@ -53,10 +53,6 @@ def setscreen():
     sense.set_pixel(snake_x[i], snake_y[i], state["snake_body_rgb"])
   sense.set_pixel(snake_x[state["level"]-1], snake_y[state["level"]-1], state["snake_head_rgb"])
 
-def distance(x1, y1, x2, y2):
-  """returns distance of two points"""
-  return math.hypot(x2 - x1, y2 - y1)
-
 def isInSnake(x,y):
   global state
   isIn = False
@@ -136,7 +132,15 @@ def move_direction(direction, auto):
     
   if rip:
       restart()
-      
+
+def move_snake():
+  global state
+  move_direction(state["last_mov"], True)
+  # Check to see if anything should happen
+  setscreen()
+  check_pos()
+  setscreen()
+       
 def draw_snake(event):
   """Takes a keypress and redraws the screen"""
   global state
@@ -149,14 +153,6 @@ def draw_snake(event):
   setscreen()
   check_pos()
   setscreen()
-  
-def move_snake():
-  global state
-  move_direction(state["last_mov"], True)
-  # Check to see if anything should happen
-  setscreen()
-  check_pos()
-  setscreen()
 
 # Initial state
 add_new_position(4, 4)#Initial snake placement
@@ -164,17 +160,21 @@ setscreen()
 
 last_tick = round(time.time(),1) * 10
 
+tick_move = 0
 while True:
   # The snake moves faster in higher levels
   timer = 5 - (int)(state["level"] / 5)
   if timer < 1 :
     timer = 1
-  tick = round(time.time(),1) * 10
+  tick = round(time.time(),1) * 10 
   
-  if (tick % timer == 0) and (tick > last_tick):
+  if (tick % timer == tick_move) and (tick > last_tick):
     move_snake()
     last_tick = tick
 
   # Poll joystick for events. When they happen, redraw screen. 
   for event in sense.stick.get_events():
+    #This avoids two movements in a very short period of time
+    tick = round(time.time(),1) * 10 
+    tick_move = (tick -1)  % timer
     draw_snake(event)
